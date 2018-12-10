@@ -1,0 +1,20 @@
+{
+  "name": "my-project",
+  "version": "1.0.0",
+  "description": "CMTPRG02-6 School Assignment - Full Stack Web Development",
+  "main": "index.js",
+  "scripts": {
+    "test": "Hello World"
+  },
+  "author": "Nienke Overmeer",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^4.0.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "gulp-nodemon": "^2.4.2",
+    "mongoose": "^5.3.15"
+  }
+}
