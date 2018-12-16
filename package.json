@@ -9,12 +9,17 @@
   "author": "Nienke Overmeer",
   "license": "ISC",
   "devDependencies": {
-    "gulp": "^4.0.0"
+    "gulp": "^4.0.0",
+    "gulp-env": "^0.4.0",
+    "supertest": "^3.3.0"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "gulp-mocha": "^6.0.0",
     "gulp-nodemon": "^2.4.2",
-    "mongoose": "^5.3.15"
+    "mongoose": "^5.3.15",
+    "should": "^13.2.3",
+    "sinon": "^7.2.2"
   }
 }

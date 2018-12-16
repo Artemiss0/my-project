@@ -2,21 +2,27 @@ let express = require('express'),
     mongoose = require('mongoose'),
     bodyParser = require('body-parser');
 
-let db = mongoose.connect('mongodb://localhost/bookAPI');
+let db;
 
-let Book = require('./Models/bookModel');
+let Task = require('./Models/taskModel');
+
+if(process.env.ENV === 'Test') {
+   db = mongoose.connect('mongodb://localhost/taskAPI_test');
+}else {
+   db = mongoose.connect('mongodb://localhost/taskAPI');
+}
+
 
 let app = express();
 
-let port = process.env.PORT || 2000;
+let port = process.env.PORT || 8000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-bookRouter = require('./Routes/bookRoutes')(Book);
+taskRouter = require('./Routes/taskRoutes')(Task);
 
-app.use('/api/books', bookRouter);
-// app.use('/api/author', authorRouter);
+app.use('/api/tasks', taskRouter);
 
 app.get('/', function (req, res) {
    res.send('Welcome to my API!! Check');
@@ -24,3 +30,5 @@ app.get('/', function (req, res) {
 app.listen(port, function () {
    console.log('Running on PORT: ' + port);
 });
+
+module.exports = app;
