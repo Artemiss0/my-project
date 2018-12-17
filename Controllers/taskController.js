@@ -1,7 +1,7 @@
 let taskController = function (Task) {
     let post = function (req, res) {
         let task = new Task(req.body);
-        if (!req.body.title) {
+        if (!req.body.title || !req.body.user) {
             res.status(400);
             res.send('Title is required')
         } else {
@@ -12,6 +12,32 @@ let taskController = function (Task) {
     };
     let get = function (req, res) {
         let query = {}; // creating a JSon filter query
+        let paginate = {
+            "pagination": {
+                "currentPage": 1,
+                "currentItems": 33,
+                "totalPages": 1,
+                "totalItems": 33,
+                "_links": {
+                    "first": {
+                        "page": 1,
+                        "href": "http://localhost:8000/api/tasks"
+                    },
+                    "last": {
+                        "page": 1,
+                        "href": "http://localhost:8000/api/tasks"
+                    },
+                    "previous": {
+                        "page": 1,
+                        "href": "http://localhost:8000/api/tasks"
+                    },
+                    "next": {
+                        "page": 1,
+                        "href": "http://localhost:8000/api/tasks"
+                    }
+                }
+            }
+        };
 
         if (req.query.genre) {
             query.genre = req.query.genre;
@@ -20,8 +46,18 @@ let taskController = function (Task) {
         Task.find(query, function (err, tasks) {
             if (err)
                 res.status(500).send(err);
-            else
-                res.json(tasks);
+            else {
+                let collection = {
+                    items: tasks,
+                    _links: {
+                        "self": {
+                            "href": "http://localhost:8000/api/tasks"
+                        }
+                    },
+                    pagination: paginate
+                };
+                res.json(collection);
+            }
         });
     };
 
