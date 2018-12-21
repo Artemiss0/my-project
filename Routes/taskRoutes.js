@@ -23,17 +23,24 @@ let routes = function (Task) {
             res.json(req.task);
         })
         .put(function (req, res) {
-            req.task.title = req.body.title;
-            req.task.user = req.body.user;
-            req.task.body = req.body.body;
-            req.task.importance = req.body.importance;
-            req.task.done = req.body.done;
-            req.task.save(function (err) {
-                if (err)
-                    res.status(500).send(err);
-                else
-                    res.json(req.task);
+            Task.findById(req.params.taskId, function (err, task) {
+                if (!req.body.title || !req.body.user || !req.body.importance || !req.body.body) {
+                    res.status(400).send(err);
+                } else {
+                    req.task.title = req.body.title;
+                    req.task.user = req.body.user;
+                    req.task.body = req.body.body;
+                    req.task.importance = req.body.importance;
+                    req.task.done = req.body.done;
+                    req.task.save(function (err) {
+                        if (err)
+                            res.status(500).send(err);
+                        else
+                            res.json(req.task);
+                    });
+                }
             });
+
 
         })
         .patch(function (req, res) {
@@ -49,7 +56,7 @@ let routes = function (Task) {
                     res.json(req.task);
             });
         })
-        .delete(function (req,res) {
+        .delete(function (req, res) {
             req.task.remove(function (err) {
                 if (err)
                     res.status(500).send(err);

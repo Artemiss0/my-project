@@ -1,6 +1,10 @@
 let taskController = function (Task) {
     let post = function (req, res) {
         let task = new Task(req.body);
+
+        task._links.self.href = 'http://' + req.headers.host + '/api/tasks/' + task._id;
+        task._links.collection.href = 'http://' + req.headers.host + '/api/tasks/';
+
         if (!req.body.title || !req.body.user) {
             res.status(400);
             res.send('Title is required')
@@ -11,54 +15,53 @@ let taskController = function (Task) {
         }
     };
     let get = function (req, res) {
-        let query = {}; // creating a JSon filter query
-        let paginate = {
-            "pagination": {
-                "currentPage": 1,
-                "currentItems": 33,
-                "totalPages": 1,
-                "totalItems": 33,
-                "_links": {
-                    "first": {
-                        "page": 1,
-                        "href": "http://localhost:8000/api/tasks"
-                    },
-                    "last": {
-                        "page": 1,
-                        "href": "http://localhost:8000/api/tasks"
-                    },
-                    "previous": {
-                        "page": 1,
-                        "href": "http://localhost:8000/api/tasks"
-                    },
-                    "next": {
-                        "page": 1,
-                        "href": "http://localhost:8000/api/tasks"
-                    }
-                }
-            }
-        };
+        const perPage = 10;
+        const page = req.params.start || 1;
+        const start = parseInt(req.query.start);
+        const limit = parseInt(req.query.limit);
+        Task.find({})
 
-        if (req.query.genre) {
-            query.genre = req.query.genre;
-        }
+            .skip((perPage * page) - perPage)
+            .limit(limit)
+            .exec(function (err, tasks) {
+                Task.count().exec(function (err, count) {
+                    if (err) return next(err)
 
-        Task.find(query, function (err, tasks) {
-            if (err)
-                res.status(500).send(err);
-            else {
-                let collection = {
-                    items: tasks,
-                    _links: {
-                        "self": {
-                            "href": "http://localhost:8000/api/tasks"
+                    let maxPage = Math.ceil(count / limit);
+                    let paginate = {
+                        items: tasks,
+
+                        _links: {self: {href: 'http://' + req.headers.host + '/api/tasks/'}},
+
+                        pagination: {
+                            currentPage: page,
+                            currentItems: limit || count,
+                            totalPages: maxPage,
+                            totalItems: count,
+
+                            _links: {
+                                first: {
+                                    page: 1,
+                                    href: 'http://' + req.headers.host + '/api/tasks/?start=1$limit=' + limit
+                                },
+                                last: {
+                                    page: maxPage,
+                                    href: 'http://' + req.headers.host + '/api/tasks/?start=' + ((count - limit) + 1) + "&limit=" + limit
+                                },
+                                previous: {
+                                    page: (page - 1),
+                                    href: 'http://' + req.headers.host + '/api/tasks/?start=' + (start - limit) + "&limit=" + limit
+                                },
+                                next: {
+                                    page: (page + 1),
+                                    href: 'http://' + req.headers.host + '/api/tasks/?start=' + (start + limit) + "&limit=" + limit
+                                }
+                            }
                         }
-                    },
-                    pagination: paginate
-                };
-                res.json(collection);
-            }
-        });
+                    };
+                    res.json(paginate)
+                })
+            })
     };
 
     return {
